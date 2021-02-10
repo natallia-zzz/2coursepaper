@@ -12,9 +12,8 @@ def main():
     geom.add_geometry(points, facets, facet_markers=box_marker)
     mesh_info = MeshInfo()
     geom.set(mesh_info)
-    mesh_info.regions.resize(1)
-    mesh_info.regions[0] = ([0, 0, 0] + [1,0.001,])
-    mesh = build(mesh_info)
+    mesh = build(mesh_info, max_volume=0.01,
+                 volume_constraints=True, attributes=True)
     mesh.write_vtk("G0.vtk")
 
 
