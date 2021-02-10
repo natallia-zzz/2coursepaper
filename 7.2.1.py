@@ -1,43 +1,20 @@
+
 def main():
-    from meshpy.tet import MeshInfo, build
-    from meshpy.geometry import GeometryBuilder
+    import numpy
+    from meshpy.tet import MeshInfo, build, Options
+    from meshpy.geometry import GeometryBuilder, Marker,make_box
     geom = GeometryBuilder();
-    # geom.add_geometry(points())
+    points, facets, _, facet_markers = make_box(
+        numpy.array([0,0,0]), numpy.array([1, 1, 2])
+    )
+    box_marker = Marker.FIRST_USER_MARKER
+    geom.add_geometry(points, facets, facet_markers=box_marker)
     mesh_info = MeshInfo()
-    #geom.set(mesh_info)
-    mesh_info.set_points(
-        [
-            (0, 0, 0),
-            (1, 0, 0),
-            (1, 1, 0),
-            (0, 1, 0),
-            (0, 0, 2),
-            (1, 0, 2),
-            (1, 1, 2),
-            (0, 1, 2),
-        ]
-    )
-
-    mesh_info.set_facets(
-        [
-            [0, 1, 2, 3],
-            [4, 5, 6, 7],
-            [0, 4, 5, 1],
-            [1, 5, 6, 2],
-            [2, 6, 7, 3],
-            [3, 7, 4, 0],
-        ]
-    )
-
-    mesh_info.save_nodes("bar")
-    mesh_info.save_poly("bar")
-
-    mesh = build(mesh_info)
-
-    mesh.save_nodes("barout")
-    mesh.save_elements("barout")
-    mesh.save_faces("barout")
-
+    geom.set(mesh_info)
+    mesh_info.regions.resize(1)
+    mesh_info.regions[0] = ([0, 0, 0] + [1,0.001,])
+    mesh = build(mesh_info, max_volume=0.01,
+            volume_constraints=True, attributes=True,options = Options('pq1.4'))
     mesh.write_vtk("test.vtk")
 
 
