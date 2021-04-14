@@ -1,0 +1,70 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      1959,         62]
+NotebookOptionsPosition[      1397,         44]
+NotebookOutlinePosition[      1792,         60]
+CellTagsIndexPosition[      1749,         57]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"4", "/", "3"}], " ", "*", " ", "\[Pi]", " ", 
+  SuperscriptBox[
+   RowBox[{"(", "0.25", ")"}], "3"]}]], "Input",
+ CellLabel->
+  "In[285]:=",ExpressionUUID->"94b1d011-2bf4-4636-85a9-cae479aaa7b3"],
+
+Cell[BoxData["0.06544984694978735`"], "Output",
+ CellChangeTimes->{3.827400927602378*^9},
+ CellLabel->
+  "Out[285]=",ExpressionUUID->"86c5e93c-6c0e-4e40-bbf7-b29923808768"]
+}, Open  ]],
+
+Cell[BoxData["\[IndentingNewLine]"], "Input",
+ CellChangeTimes->{{3.82169485614526*^9, 3.8216948870816107`*^9}, {
+   3.821695219388165*^9, 3.821695255730048*^9}, {3.82169575250229*^9, 
+   3.821695756102817*^9}, {3.821697026662653*^9, 3.8216970381667347`*^9}, 
+   3.821697070760921*^9, {3.8216975236602783`*^9, 
+   3.82169755998103*^9}},ExpressionUUID->"fc5db87d-e780-4daf-8023-\
+ebd9bddc86b5"]
+},
+WindowSize->{808, 677},
+WindowMargins->{{4, Automatic}, {Automatic, 0}},
+FrontEndVersion->"12.2 for Mac OS X x86 (64-bit) (December 12, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"f415b1a6-b429-445d-868c-c18f5eff7ce4"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 230, 6, 30, "Input",ExpressionUUID->"94b1d011-2bf4-4636-85a9-cae479aaa7b3"],
+Cell[813, 30, 172, 3, 82, "Output",ExpressionUUID->"86c5e93c-6c0e-4e40-bbf7-b29923808768"]
+}, Open  ]],
+Cell[1000, 36, 393, 6, 52, "Input",ExpressionUUID->"fc5db87d-e780-4daf-8023-ebd9bddc86b5"]
+}
+]
+*)
+
