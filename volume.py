@@ -6,7 +6,7 @@ def volume(a,b,c,d):
     return 1/6 *np.linalg.det(np.matrix([ab,ac,ad]))
 
 def centre_of_mass(a,b,c,d, i):
-    return 0.25*volume(a,b,c,d)*(a[i]+b[i]+c[i]+d[i])
+    return 0.25*(a[i]+b[i]+c[i]+d[i])*volume(a,b,c,d)
     
 def area_of_triangle(a,b,c):
     import numpy as np

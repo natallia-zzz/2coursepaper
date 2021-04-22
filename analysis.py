@@ -1,14 +1,15 @@
-def main():
+def analysis(radius,scalar, center, n):
     import numpy
     from meshpy.tet import MeshInfo, build, Options
     from meshpy.geometry import GeometryBuilder, Marker,make_box,make_ball
     import volume     
     geom = GeometryBuilder();
     box_marker = Marker.FIRST_USER_MARKER
-    points, facets, _, _ = make_ball(r = 0.25)
+    points, facets, _, _ = make_ball(r = radius)
     for i in range(len(points)):
-        a = [0,0,0]
-        a = numpy.array(points[i]) + numpy.array([0.5,0.5,0.5])
+        a = numpy.array(points[i])
+        a[2]*=scalar
+        a+= numpy.array(center)
         points[i] = tuple(a)
     area = 0
     for i in range(len(facets)):
@@ -42,8 +43,4 @@ def main():
 
     print("center of mass: " + str(d))
     print("sphericity: " + str(volume.sphericity(area,tot)))
-    mesh.write_vtk("G0.vtk")
-    
-
-if __name__ == "__main__":
-    main()
+    mesh.write_vtk("G"+str(n)+".vtk")
