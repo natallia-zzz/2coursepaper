@@ -41,6 +41,6 @@ def analysis(radius,scalar, center, n):
         for i in range(3):
             d[i]+= volume.centre_of_mass(pt1,pt2,pt3,pt4,i)
 
-    print("center of mass: " + str(d))
+    print("center of mass: " + str(d/tot))
     print("sphericity: " + str(volume.sphericity(area,tot)))
-    mesh.write_vtk("G"+str(n)+".vtk")
+    # mesh.write_vtk("G"+str(n)+".vtk")
