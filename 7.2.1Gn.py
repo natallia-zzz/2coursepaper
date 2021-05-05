@@ -5,7 +5,7 @@ def main():
         a.append(1/(i+1))
     for i in range(len(a)):
         print("ellipse"+str(i+1))
-        analysis(1,a[i],[1,1,1], i+1)
+        analysis(1,a[i],[a[i],a[i],a[i]], i+1)
         print("====================")
         
 
