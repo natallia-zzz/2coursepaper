@@ -49,7 +49,7 @@ def main():
         [pt1, pt2, pt3, pt4] = [mesh.points[p1], mesh.points[p2], mesh.points[p3], mesh.points[p4]]
         for j in range(3):
             d[j] += volume.centre_of_mass(pt1, pt2, pt3, pt4, j)
-
+    print(type(tot))
     print("center of mass: " + str(d / tot))
 
     print("sphericity: " + str(volume.sphericity(math.pi*0.25,tot)))
