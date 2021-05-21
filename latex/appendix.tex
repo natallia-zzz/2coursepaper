@@ -1,0 +1,389 @@
+\titleformat{\section}[block]
+  {\large\bfseries\centering}
+  {\thesection\ }{}{}
+\chapter*{ПРИЛОЖЕНИЕ А}
+\addcontentsline{toc}{chapter}{ПРИЛОЖЕНИЕ А}
+\section*{\centering Код программы. Функции для вычисления параметров }
+\begin{footnotesize}
+\begin{lstlisting}
+# volume
+def volume(a,b,c,d):
+    import numpy as np
+    ab = np.array(b) - np.array(a)
+    ac = np.array(c) - np.array(a)
+    ad = np.array(d) - np.array(a)
+    return 1/6 *np.linalg.det(np.matrix([ab,ac,ad]))
+
+
+# center of mass part for one tetrahedron
+def centre_of_mass(a,b,c,d, i):
+    return 0.25*(a[i]+b[i]+c[i]+d[i])*volume(a,b,c,d)
+
+
+# area of triangle   
+def area_of_triangle(a,b,c):
+    import numpy as np
+    ab = np.array(b) - np.array(a)
+    ac = np.array(c) - np.array(a)
+    return 0.5*np.dot(ab,ac)
+
+# area of quadrilateral
+def area_of_quadrelateral(a,b,c,d):
+    return area_of_triangle(a,b,c) + area_of_triangle(a,c,d)
+
+
+# sphericity
+def sphericity(area, volume):
+    import math
+    return (math.pi**(1/3)) *((6*volume)**(2/3))/area
+\end{lstlisting}
+\end{footnotesize}
+\chapter*{ПРИЛОЖЕНИЕ Б}
+\addcontentsline{toc}{chapter}{ПРИЛОЖЕНИЕ Б}
+\section*{\centering Код программы.Построение и анализ сферы}
+\begin{footnotesize}
+\begin{lstlisting}
+def main():
+    import numpy
+    from meshpy.tet import MeshInfo, build, Options
+    from meshpy.geometry import GeometryBuilder, Marker,make_box,make_ball
+    import volume
+    import time
+    start_time = time.time()
+    # mesh generation
+    geom = GeometryBuilder();
+    box_marker = Marker.FIRST_USER_MARKER
+    points, facets, _, _ = make_ball(r = 0.25)
+    for i in range(len(points)):
+        a = [0,0,0]
+        a = numpy.array(points[i]) + numpy.array([0.5,0.5,0.5])
+        points[i] = tuple(a)
+    area = 0
+    # surface area count using facets
+    for i in range(len(facets)):
+        if(len(facets[i][0]) == 4):   
+            [[p1,p2,p3,p4]] = facets[i]
+            [pt1,pt2,pt3,pt4] = [points[p1],points[p2],points[p3],points[p4]]
+            area += volume.area_of_quadrelateral(pt1,pt2,pt3,pt4)
+        elif(len(facets[i][0]) == 3):
+            [[p1,p2,p3]] = facets[i]
+            [pt1,pt2,pt3] = [points[p1],points[p2],points[p3]]
+            area += volume.area_of_triangle(pt1,pt2,pt3)
+    print("area: " + str(area))
+    geom.add_geometry(points, facets, facet_markers=box_marker)
+    mesh_info = MeshInfo()
+    geom.set(mesh_info)
+    mesh = build(mesh_info, max_volume=0.01,
+                 volume_constraints=True, attributes=True)
+    mesh.element_volumes.setup()
+    tot = 0;
+    #volume count
+    for i in range(len(mesh.elements)):
+        [p1,p2,p3,p4] = mesh.elements[i]
+        [pt1,pt2,pt3,pt4] = [mesh.points[p1], mesh.points[p2],
+        mesh.points[p3], mesh.points[p4]]
+        tot += volume.volume(pt1,pt2,pt3,pt4)
+    print("volume: " +  str(tot))
+    d = [0,0,0]
+    for i in range(len(mesh.elements)):
+        [p1,p2,p3,p4] = mesh.elements[i]
+        [pt1,pt2,pt3,pt4] = [mesh.points[p1], mesh.points[p2],
+        mesh.points[p3], mesh.points[p4]]
+        for i in range(3):
+            d[i]+= volume.centre_of_mass(pt1,pt2,pt3,pt4,i)
+    #center of mass, sphericity and time count
+    print("center of mass: " + str(d/tot))
+    print("sphericity: " + str(volume.sphericity(area,tot)))
+    print("timing: %s seconds" % (time.time() - start_time))
+    #export to vtk file
+    mesh.write_vtk("G0.vtk")
+    
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+\end{footnotesize}
+
+\chapter*{ПРИЛОЖЕНИЕ В}
+\addcontentsline{toc}{chapter}{ПРИЛОЖЕНИЕ В}
+\section*{\centering Код программы.Построение и анализ последовательности эллипсоидов}
+\begin{footnotesize}
+\begin{lstlisting}
+def analysis(radius, scalar, center, n):
+    import numpy
+    from meshpy.tet import MeshInfo, build, Options
+    from meshpy.geometry import GeometryBuilder, Marker, make_box, make_ball
+    import volume
+    geom = GeometryBuilder()
+    box_marker = Marker.FIRST_USER_MARKER
+    points, facets, _, _ = make_ball(r=radius)
+    for i in range(len(points)):
+        a = numpy.array(points[i])
+        a[2] *= scalar
+        a += numpy.array(center)
+        points[i] = tuple(a)
+    area = 0
+    for i in range(len(facets)):
+        if len(facets[i][0]) == 4:
+            [[p1, p2, p3, p4]] = facets[i]
+            [pt1, pt2, pt3, pt4] = [points[p1], points[p2],
+            points[p3], points[p4]]
+            area += volume.area_of_quadrelateral(pt1, pt2, pt3, pt4)
+        elif len(facets[i][0]) == 3:
+            [[p1, p2, p3]] = facets[i]
+            [pt1, pt2, pt3] = [points[p1], points[p2], points[p3]]
+            area += volume.area_of_triangle(pt1, pt2, pt3)
+    print("area: " + str(area))
+    geom.add_geometry(points, facets, facet_markers=box_marker)
+    mesh_info = MeshInfo()
+    geom.set(mesh_info)
+    mesh = build(mesh_info, max_volume=0.01,
+                 volume_constraints=True, attributes=True)
+    mesh.element_volumes.setup()
+    # volume count
+    tot = 0
+    for i in range(len(mesh.elements)):
+        [p1, p2, p3, p4] = mesh.elements[i]
+        [pt1, pt2, pt3, pt4] = [mesh.points[p1], mesh.points[p2],
+        mesh.points[p3], mesh.points[p4]]
+        tot += volume.volume(pt1, pt2, pt3, pt4)
+    print("volume: " + str(tot))
+    #center of mass count
+    d = [0, 0, 0]
+    for i in range(len(mesh.elements)):
+        [p1, p2, p3, p4] = mesh.elements[i]
+        [pt1, pt2, pt3, pt4] = [mesh.points[p1], mesh.points[p2],
+        mesh.points[p3], mesh.points[p4]]
+        for j in range(3):
+            d[j] += volume.centre_of_mass(pt1, pt2, pt3, pt4, j)
+
+    print("center of mass: " + str(d / tot))
+    #sphericity count
+    print("spherical: " + str(volume.sphericity(area, tot)))
+    # file write
+    # mesh.write_vtk("G"+str(n)+".vtk")
+
+
+def main():
+    a = []
+    for i in range(10):
+        a.append(1/(i+1))
+    for i in range(len(a)):
+        print("ellipse"+str(i+1))
+        analysis(1,a[i],[0,0,0], i+1)
+        print("====================")
+        
+
+if __name__ == "__main__":
+    main()
+
+\end{lstlisting}
+\end{footnotesize}
+
+\chapter*{ПРИЛОЖЕНИЕ Г}
+\addcontentsline{toc}{chapter}{ПРИЛОЖЕНИЕ Г}
+\section*{\centering Код программы.Построение и анализ сетки методом выбора тетраэдров}
+\begin{footnotesize}
+\begin{lstlisting}
+# surface
+def function(x,y,z):
+    return (x-0.5)**2 + (y-0.5)**2 + (z-0.5)**2 - 1/16
+
+
+def main():
+    import numpy
+    from meshpy.tet import MeshInfo, build, Options
+    from meshpy.geometry import GeometryBuilder, Marker, make_box, make_ball
+    import volume
+    import math
+    import time
+    # mesh generation
+    start_time = time.time()
+    geom = GeometryBuilder();
+    box_marker = Marker.FIRST_USER_MARKER
+    points, facets, _, facet_markers = make_box(
+        numpy.array([0, 0, 0]), numpy.array([1, 1, 2])
+    )
+    geom.add_geometry(points, facets, facet_markers=box_marker)
+    mesh_info = MeshInfo()
+    geom.set(mesh_info)
+    mesh_info.regions.resize(1)
+    mesh_info.regions[0] = ([0, 0, 0] + [1, 0.001, ])
+    mesh = build(mesh_info, max_volume=0.01,
+                 volume_constraints=True, attributes=True)
+
+    in_region = []
+    for i in range(len(mesh.elements)):
+        [p1, p2, p3, p4] = mesh.elements[i]
+        [pt1, pt2, pt3, pt4] = [mesh.points[p1], mesh.points[p2],
+        mesh.points[p3], mesh.points[p4]]
+        # selection of inside tetrahedra
+        # if (function(pt1[0],pt1[1],pt1[2]) <= 0
+        #         and function(pt2[0],pt2[1],pt2[2]) <= 0 and
+        function(pt3[0],pt3[1],pt3[2]) <= 0
+        #         and function(pt4[0],pt4[1],pt4[2] <= 0)):
+        #     in_region.append(i)
+        # selection of inside and intersecting tetrahedra
+        if (function(pt1[0], pt1[1], pt1[2]) <= 0
+                or function(pt2[0], pt2[1], pt2[2]) <= 0 or function(pt3[0],
+                pt3[1], pt3[2]) <= 0
+                or function(pt4[0], pt4[1], pt4[2] <= 0)):
+            in_region.append(i)
+    print(str(len(in_region)/len(mesh.elements)))
+    tot = 0
+    # volume
+    for i in range(len(in_region)):
+        [p1, p2, p3, p4] = mesh.elements[in_region[i]]
+        [pt1, pt2, pt3, pt4] = [mesh.points[p1], mesh.points[p2],
+        mesh.points[p3], mesh.points[p4]]
+        tot += volume.volume(pt1, pt2, pt3, pt4)
+    print("volume: " + str(tot))
+    # center of mass
+    d = [0, 0, 0]
+    for i in range(len(in_region)):
+        [p1, p2, p3, p4] = mesh.elements[in_region[i]]
+        [pt1, pt2, pt3, pt4] = [mesh.points[p1], mesh.points[p2],
+        mesh.points[p3], mesh.points[p4]]
+        for j in range(3):
+            d[j] += volume.centre_of_mass(pt1, pt2, pt3, pt4, j)
+    print("center of mass: " + str(d / tot))
+    # surface area for sphericity is counted by formula for a sphere
+    print("sphericity: " + str(volume.sphericity(math.pi*0.25,tot)))
+    print("timing: %s seconds" % (time.time() - start_time))
+    
+
+if __name__ == "__main__":
+    main()
+
+\end{lstlisting}
+\end{footnotesize}
+
+\chapter*{ПРИЛОЖЕНИЕ Д}
+\addcontentsline{toc}{chapter}{ПРИЛОЖЕНИЕ Д}
+\section*{\centering Код программы.Функции для нахождения точек пересечения}
+\begin{footnotesize}
+\begin{lstlisting}
+#intersection test
+def intersectQ(p1,p2,surface):
+    a = surface(p1[0], p1[1],p1[2])
+    b = surface(p2[0], p2[1], p2[2])
+    if a * b == 0:
+        return 0
+    return a * b / abs(a * b)
+
+# finding intersection points
+def intersection_point(p1,p2,surface):
+    from sympy import symbols, solve
+    import numpy as np
+    t = symbols('t')
+    x = (p2[0] - p1[0]) * t + p1[0]
+    y = (p2[1] - p1[1]) * t + p1[1]
+    z = (p2[2] - p1[2]) * t + p1[2]
+    sol = solve(surface(x,y,z))
+    for i in sol:
+        x = (p2[0] - p1[0]) * i + p1[0]
+        y = (p2[1] - p1[1]) * i + p1[1]
+        z = (p2[2] - p1[2]) * i + p1[2]
+        if np.dot(np.array(p2) - np.array([x,y,z]),
+        np.array([x,y,z]) - np.array(p1)) > 0:
+            return [x,y,z]
+        
+# surface 
+def function(x,y,z):
+    return (x-0.5)**2 + (y-0.5)**2 + (z-0.5)**2 - 1/16
+    
+# example
+def main():
+    from intersection import tetrahedral_division
+    p1 = [0, 0, 0]
+    p2 = [2, 0, 0]
+    p3 = [0, 2, 0]
+    p4 = [0, 0, 2]
+    surface = function
+    sides = tetrahedral_division(p1, p2, p3, p4)
+    a = []
+    for i in sides:
+        if intersectQ(i[0], i[1], surface) == -1:
+            print(intersection_point(i[0],i[1],surface))
+
+if __name__ == "__main__":
+    main()
+
+
+\end{lstlisting}
+\end{footnotesize}
+
+\chapter*{ПРИЛОЖЕНИЕ Е}
+\addcontentsline{toc}{chapter}{ПРИЛОЖЕНИЕ Е}
+\section*{\centering Код программы.Постоение и анализ сетки методом выпуклой оболочки}
+\begin{footnotesize}
+\begin{lstlisting}
+ def main():
+    import numpy
+    from meshpy.tet import MeshInfo, build, Options
+    from meshpy.geometry import GeometryBuilder, Marker, make_box
+    import volume
+    import math
+    from scipy.spatial import ConvexHull
+    import surface_intersection as si
+    from intersection import tetrahedral_division
+    import sys
+    import time
+    #mesh generation
+    geom = GeometryBuilder()
+    box_marker = Marker.FIRST_USER_MARKER
+    points, facets, _, facet_markers = make_box(
+        numpy.array([0, 0, 0]), numpy.array([1, 1, 2])
+    )
+    geom.add_geometry(points, facets, facet_markers=box_marker)
+    mesh_info = MeshInfo()
+    geom.set(mesh_info)
+    mesh_info.regions.resize(1)
+    mesh_info.regions[0] = ([0, 0, 0] + [1, 0.001, ])
+    mesh = build(mesh_info, max_volume=0.01,
+                 volume_constraints=True, attributes=True)
+    #finding intersection points
+    surface = si.function
+    in_region = []
+    in_region_tetr = []
+    total = len(mesh.elements)
+    start_time = time.time()
+    for i in range(total):
+        [p1, p2, p3, p4] = mesh.elements[i]
+        [pt1, pt2, pt3, pt4] = [mesh.points[p1], mesh.points[p2],
+        mesh.points[p3], mesh.points[p4]]
+        sides = tetrahedral_division(pt1, pt2, pt3, pt4)
+        print(str(int(100*i/total)) + '%')
+        sys.stdout.write('\x1b[1A')
+        sys.stdout.write('\x1b[2K')
+        for j in sides:
+            if si.intersectQ(j[0], j[1], surface) == -1:
+                in_region.append(si.intersection_point(j[0],j[1],surface))
+                in_region_tetr.append(i)
+    print("timing: %s seconds" % (time.time() - start_time))
+    #counting number of intersected tetrahedrons
+    print(str(len(in_region))+"/"+ str(len(mesh.elements)))
+    hull = ConvexHull(numpy.array(in_region))
+    # volume, area and sphericity
+    print("volume: " + str(hull.volume))
+    print("area: " + str(hull.area))
+    print("sphericity: " + str(volume.sphericity(hull.area,hull.volume)))
+    tot = 0
+    d = [0, 0, 0]
+    for i in range(len(in_region_tetr)):
+        [p1, p2, p3, p4] = mesh.elements[in_region_tetr[i]]
+        [pt1, pt2, pt3, pt4] = [mesh.points[p1], mesh.points[p2],
+        mesh.points[p3], mesh.points[p4]]
+        for j in range(3):
+            d[j] += volume.centre_of_mass(pt1, pt2, pt3, pt4, j)
+        tot+= volume.volume(pt1,pt2,pt3,pt4)
+    #center of mass
+    print("center of mass: " + str(d/tot))
+    print("timing: %s seconds" % (time.time() - start_time))
+
+
+if __name__ == "__main__":
+    main()
+
+\end{lstlisting}
+\end{footnotesize}

@@ -1,3 +1,4 @@
+#Проверка на пересечение
 def intersectQ(p1,p2,surface):
     a = surface(p1[0], p1[1],p1[2])
     b = surface(p2[0], p2[1], p2[2])
@@ -5,6 +6,8 @@ def intersectQ(p1,p2,surface):
         return 0
     return a * b / abs(a * b)
 
+
+# нахождение точки пересечения
 def intersection_point(p1,p2,surface):
     from sympy import symbols, solve
     import numpy as np
@@ -20,18 +23,19 @@ def intersection_point(p1,p2,surface):
         if np.dot(np.array(p2) - np.array([x,y,z]),np.array([x,y,z]) - np.array(p1)) > 0:
             return [x,y,z]
         
-
-def sphere(x,y,z):
+# поверхность Г
+def function(x,y,z):
     return (x-0.5)**2 + (y-0.5)**2 + (z-0.5)**2 - 1/16
     
 
+# пример для тестирования
 def main():
     from intersection import tetrahedral_division
     p1 = [0, 0, 0]
     p2 = [2, 0, 0]
     p3 = [0, 2, 0]
     p4 = [0, 0, 2]
-    surface = sphere
+    surface = function
     sides = tetrahedral_division(p1, p2, p3, p4)
     a = []
     for i in sides:

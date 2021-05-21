@@ -2,7 +2,10 @@ def main():
     import numpy
     from meshpy.tet import MeshInfo, build, Options
     from meshpy.geometry import GeometryBuilder, Marker,make_box,make_ball
-    import volume     
+    import volume
+    import time
+    start_time = time.time()
+    # mesh generation
     geom = GeometryBuilder();
     box_marker = Marker.FIRST_USER_MARKER
     points, facets, _, _ = make_ball(r = 0.25)
@@ -11,6 +14,7 @@ def main():
         a = numpy.array(points[i]) + numpy.array([0.5,0.5,0.5])
         points[i] = tuple(a)
     area = 0
+    # surface area count using facets
     for i in range(len(facets)):
         if(len(facets[i][0]) == 4):   
             [[p1,p2,p3,p4]] = facets[i]
@@ -28,6 +32,7 @@ def main():
                  volume_constraints=True, attributes=True)
     mesh.element_volumes.setup()
     tot = 0;
+    #volume count
     for i in range(len(mesh.elements)):
         [p1,p2,p3,p4] = mesh.elements[i]
         [pt1,pt2,pt3,pt4] = [mesh.points[p1],mesh.points[p2],mesh.points[p3],mesh.points[p4]]
@@ -39,9 +44,10 @@ def main():
         [pt1,pt2,pt3,pt4] = [mesh.points[p1],mesh.points[p2],mesh.points[p3],mesh.points[p4]]
         for i in range(3):
             d[i]+= volume.centre_of_mass(pt1,pt2,pt3,pt4,i)
-
-    print("center of mass: " + str(d))
+    #center of mass, sphericity and time count
+    print("center of mass: " + str(d/tot))
     print("sphericity: " + str(volume.sphericity(area,tot)))
+    print("timing: %s seconds" % (time.time() - start_time))
     mesh.write_vtk("G0.vtk")
     
 
